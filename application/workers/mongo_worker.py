@@ -100,3 +100,36 @@ class MongoWorker:
 
         c = MongoClient(mongo_uri, replicaSet=Config.REPLICA_SET_NAME)
         c.admin.command({'replSetReconfig': replica_set_config})
+
+    @staticmethod
+    def remove_replica_set_host(active_hosts, removal_hostname, namespace):
+        """
+        Removes a hostname from the Mongo ReplicaSet
+        :param active_hosts: List of active ReplicaSet hosts to connect to
+        :param removal_hostname: Hostname to remove from RS
+        :param namespace: Namespace to act upon
+        :return: N/A
+        """
+        mongo_uri = 'mongodb://'
+
+        for host in active_hosts:
+            mongo_uri += '{0}:27017,'.format(host)
+
+        mongo_uri = mongo_uri[:-1]
+
+        current_rs_conf = MongoWorker._get_current_repl_set_conf(mongo_uri)
+        current_rs_conf['version'] += 1
+
+        is_in_replica_set = False
+        member_to_splice = None
+
+        for i, member in enumerate(current_rs_conf['members']):
+            if member['host'] == '{0}:27017'.format(removal_hostname):
+                member_to_splice = i
+                is_in_replica_set = True
+                break
+
+        if is_in_replica_set:
+            del current_rs_conf['members'][member_to_splice]
+            c = MongoClient(mongo_uri, replicaSet=Config.REPLICA_SET_NAME)
+            c.admin.command({'replSetReconfig': current_rs_conf})

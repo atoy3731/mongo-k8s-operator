@@ -20,6 +20,22 @@ class KubeWorker:
         self.apps_v1_api = client.AppsV1Api()
         self.core_v1_api = client.CoreV1Api()
 
+    def delete_stateful_set(self, namespace=None):
+        """
+        Delete and clean up stateful set and configmap after CRD instantiation deletion.
+        :param namespace: Namespace of resource to delete.
+        :return: N/A
+        """
+        self.apps_v1_api.delete_namespaced_stateful_set(
+            name='mongo',
+            namespace=namespace
+        )
+
+        self.core_v1_api.delete_namespaced_config_map(
+            name='mongo-configmap',
+            namespace=namespace
+        )
+
     def create_stateful_set(self, replicas=3, volumeSize=10, namespace=None):
         """
         Create the StatefulSet for the Mongo cluster within a namespace.

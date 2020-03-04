@@ -5,7 +5,7 @@ metadata:
 rules:
 - apiGroups: ["", "extensions", "apps"]
   resources: ["statefulsets", "pods"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  verbs: ["*"]
 - apiGroups: ["adamtoy.io"]
   resources: ["mongoclusters"]
   verbs: ["watch"]
