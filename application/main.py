@@ -42,8 +42,9 @@ async def mongocluster_replica_update_handler(old, new, status, namespace, **kwa
     kube_worker.alter_replicas(new)
 
 
+@kopf.on.create(group='', version='v1', plural='pods')
 @kopf.on.delete(group='', version='v1', plural='pods')
-async def delete_pod_hander(event, namespace, **kwargs):
+async def create_delete_pod_hander(event, namespace, **kwargs):
     """
     Handle the deletion of a pod. Checks if it is part of the MongoCluster statefulset, then updates the replicaSet.
 
@@ -53,8 +54,7 @@ async def delete_pod_hander(event, namespace, **kwargs):
     """
     if 'app' in kwargs['body']['metadata']['labels'] and kwargs['body']['metadata']['labels']['app'] == 'MongoStatefulSet':
         kube_worker = KubeWorker()
-        hosts = kube_worker.get_stateful_set_hosts(namespace=namespace)
+        all_hosts = kube_worker.get_stateful_set_hosts(namespace=namespace)
+        mongo_hosts = MongoWorker.get_replset_status(all_hosts)
 
-        replica_to_remove = kwargs['body']['metadata']['name']
-
-        MongoWorker.remove_replica_set_host(namespace=namespace, active_hosts=hosts, removal_hostname=replica_to_remove)
+        MongoWorker.replica_set_reconfig(active_hosts=mongo_hosts['inReplSet'], inactive_hosts=mongo_hosts['outReplSet'])

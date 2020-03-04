@@ -1,3 +1,6 @@
+# Build Python 3.7 from source in first stage of build.
+# Kopf requires Python 3.7, and we don't want all of the build junk still sitting around
+# taking up space is our final image.
 FROM centos:7 AS python-builder
 
 USER root
@@ -12,14 +15,12 @@ RUN yum groupinstall -y "Development Tools" && \
     make altinstall && \
     rm -f /root/Python-3.7.0.tgz
 
-RUN yum install -y which && \
-    which python3.7 && \
-    which pip3.7
-
+# Now we start our final image build.
 FROM centos:7
 
 USER root
 
+# Copy the Python3.7 we just compiled/built from the previous stage.
 COPY --from=python-builder /usr/local/lib/python3.7 /usr/local/lib/python3.7
 COPY --from=python-builder /usr/local/bin/python3.7 /usr/local/bin/python3.7
 COPY --from=python-builder /usr/local/bin/pip3.7 /usr/local/bin/pip3.7
