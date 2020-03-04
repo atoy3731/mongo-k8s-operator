@@ -1,0 +1,11 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongocluster-role
+rules:
+- apiGroups: ["", "extensions", "apps"]
+  resources: ["statefulsets", "pods"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["adamtoy.io"]
+  resources: ["mongoclusters"]
+  verbs: ["watch"]

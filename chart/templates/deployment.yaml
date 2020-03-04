@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongoclusters-operator-deployment
+  namespace: default
+  labels:
+    app: mongoclusters
+spec:
+  selector:
+    matchLabels:
+      app: mongoclusters
+  template:
+    metadata:
+      labels:
+        app: mongoclusters
+    spec:
+      serviceAccountName: mongocluster-svc-account
+      containers:
+      - name: mongocluster-container
+        image: atoy3731/mongocluster-operator:1.0

@@ -1,0 +1,33 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mongoclusters.adamtoy.io
+spec:
+  group: adamtoy.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                replicas:
+                  description: Number of replicas in statefulset.
+                  type: integer
+                namespace:
+                  description: Namespace to deploy Mongo statefulset to.
+                  type: string
+                volumeSize:
+                  description: Size of the volume to attach to stateful set.
+                  type: integer
+  scope: Namespaced
+  names:
+    plural: mongoclusters
+    singular: mongocluster
+    kind: MongoCluster
+    shortNames:
+    - mc
